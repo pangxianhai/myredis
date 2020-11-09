@@ -1,6 +1,7 @@
 package server
 
 import (
+    "errors"
     "log"
     "net"
     "reids-server/data/config"
@@ -11,7 +12,7 @@ type ClientInfo struct {
     //标记
     flag uint8
     //客户端ID
-    id uint32
+    id  uint32
     //客户端地址
     address string
     // tcp 连接通道
@@ -45,6 +46,6 @@ func (netService *NetService) StartTcpServer() {
     }
 }
 
-func (netService *NetService) acceptTcpMessage(clientInfo ClientInfo) {
-
+func (netService *NetService) acceptTcpMessage(clientInfo ClientInfo)  {
+    return errors.New("sss")
 }
