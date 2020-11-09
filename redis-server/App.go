@@ -7,6 +7,7 @@ import (
 
 func main() {
     config.InitConfig("./redis.conf")
+
     conf := config.GetConfigInstance()
     fmt.Println(conf.GetServerPort())
 
