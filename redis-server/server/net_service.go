@@ -1,7 +1,6 @@
 package server
 
 import (
-    "errors"
     "log"
     "net"
     "reids-server/data/config"
@@ -24,17 +23,22 @@ type NetService struct {
     clientList []ClientInfo
 }
 
-func (netService *NetService) StartTcpServer() {
+// StartTCPServer 初始化 tcp 连接
+func (netService *NetService) StartTCPServer() {
+    //监听 tcp 端口
     netListen, err := net.Listen("tcp", ":"+strconv.Itoa(netService.config.GetServerPort()))
+    //如果监听 tcp 失败 则启动失败 退出
     if err != nil {
         log.Fatalln("server start failed", err)
     }
     netService.clientList = make([]ClientInfo, 0)
+    //循环接受每个客户端的连接
     for {
         conn, err := netListen.Accept()
         if err != nil {
             continue
         }
+        //组装客户端信息
         clientInfo := ClientInfo{
             flag:    0,
             id:      0,
@@ -42,10 +46,13 @@ func (netService *NetService) StartTcpServer() {
             conn:    conn,
         }
         netService.clientList = append(netService.clientList, clientInfo)
-        go netService.acceptTcpMessage(clientInfo)
+        //启一个协程 服务每个客户端
+        go netService.acceptTCPMessagego(clientInfo)
     }
 }
 
-func (netService *NetService) acceptTcpMessage(clientInfo ClientInfo)  {
-    return errors.New("sss")
+func (netService *NetService) acceptTCPMessagego(clientInfo ClientInfo) {
+    buf := make([]byte, 1024)
+    clientInfo.conn.Read(buf)
+
 }
