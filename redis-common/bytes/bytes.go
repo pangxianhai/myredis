@@ -1,4 +1,4 @@
-package util
+package bytes
 
 import (
     "bytes"
@@ -6,8 +6,8 @@ import (
     "errors"
 )
 
-// ByteToUint64 64位byte 转成uint64
-func ByteToUint64(byte []byte) (uint64, error) {
+// ToUint64 64位byte 转成uint64
+func ToUint64(byte []byte) (uint64, error) {
     if len(byte) != 8 {
         return 0, errors.New("转 uint64 byte 长度必须是8")
     }
@@ -20,8 +20,8 @@ func ByteToUint64(byte []byte) (uint64, error) {
     return value, nil
 }
 
-// Uint64ToBytes uint64 转 二进制
-func Uint64ToBytes(n uint64) ([]byte, error) {
+// FromUint64 uint64 转 二进制
+func FromUint64(n uint64) ([]byte, error) {
     buffer := bytes.NewBuffer([]byte{})
     err := binary.Write(buffer, binary.BigEndian, n)
     if err != nil {
@@ -30,8 +30,8 @@ func Uint64ToBytes(n uint64) ([]byte, error) {
     return buffer.Bytes(), nil
 }
 
-// ByteToUint32 32位byte 转成uint32
-func ByteToUint32(byte []byte) (uint32, error) {
+// ToUint32 32位byte 转成uint32
+func ToUint32(byte []byte) (uint32, error) {
     if len(byte) != 4 {
         return 0, errors.New("转 uint32 byte 长度必须是4")
     }
@@ -44,8 +44,8 @@ func ByteToUint32(byte []byte) (uint32, error) {
     return value, nil
 }
 
-// Uint32ToBytes uint32 转 二进制
-func Uint32ToBytes(n uint32) ([]byte, error) {
+// FromUint32 uint32 转 二进制
+func FromUint32(n uint32) ([]byte, error) {
     buffer := bytes.NewBuffer([]byte{})
     err := binary.Write(buffer, binary.BigEndian, n)
     if err != nil {
@@ -54,8 +54,8 @@ func Uint32ToBytes(n uint32) ([]byte, error) {
     return buffer.Bytes(), nil
 }
 
-// ByteToUint16 16位byte 转成uint16
-func ByteToUint16(byte []byte) (uint16, error) {
+// ToUint16 16位byte 转成uint16
+func ToUint16(byte []byte) (uint16, error) {
     if len(byte) != 2 {
         return 0, errors.New("转 uint16 byte 长度必须是2")
     }
@@ -68,8 +68,8 @@ func ByteToUint16(byte []byte) (uint16, error) {
     return value, nil
 }
 
-// Uint16ToBytes uint16 转 二进制
-func Uint16ToBytes(n uint16) ([]byte, error) {
+// FromUint16 uint16 转 二进制
+func FromUint16(n uint16) ([]byte, error) {
     buffer := bytes.NewBuffer([]byte{})
     err := binary.Write(buffer, binary.BigEndian, n)
     if err != nil {
@@ -78,8 +78,8 @@ func Uint16ToBytes(n uint16) ([]byte, error) {
     return buffer.Bytes(), nil
 }
 
-// ByteToUint8 8位byte 转成uint8
-func ByteToUint8(byte []byte) (uint8, error) {
+// ToUint8 8位byte 转成uint8
+func ToUint8(byte []byte) (uint8, error) {
     if len(byte) != 1 {
         return 0, errors.New("转 uint32 byte 长度必须是1")
     }
@@ -92,8 +92,8 @@ func ByteToUint8(byte []byte) (uint8, error) {
     return value, nil
 }
 
-// Uint8ToBytes uint8 转 二进制
-func Uint8ToBytes(n uint8) ([]byte, error) {
+// FromUint8 uint8 转 二进制
+func FromUint8(n uint8) ([]byte, error) {
     buffer := bytes.NewBuffer([]byte{})
     err := binary.Write(buffer, binary.BigEndian, n)
     if err != nil {
@@ -102,8 +102,8 @@ func Uint8ToBytes(n uint8) ([]byte, error) {
     return buffer.Bytes(), nil
 }
 
-// ByteToInt64 64位byte 转成int64
-func ByteToInt64(byte []byte) (int64, error) {
+// ToInt64 64位byte 转成int64
+func ToInt64(byte []byte) (int64, error) {
     if len(byte) != 8 {
         return 0, errors.New("转 int64 byte 长度必须是8")
     }
@@ -116,8 +116,8 @@ func ByteToInt64(byte []byte) (int64, error) {
     return value, nil
 }
 
-// Int64ToBytes int64 转 二进制
-func Int64ToBytes(n int64) ([]byte, error) {
+// FromInt64 int64 转 二进制
+func FromInt64(n int64) ([]byte, error) {
     buffer := bytes.NewBuffer([]byte{})
     err := binary.Write(buffer, binary.BigEndian, n)
     if err != nil {
@@ -126,8 +126,8 @@ func Int64ToBytes(n int64) ([]byte, error) {
     return buffer.Bytes(), nil
 }
 
-// ByteToInt32 64位byte 转成int64
-func ByteToInt32(byte []byte) (int32, error) {
+// ToInt32 64位byte 转成int64
+func ToInt32(byte []byte) (int32, error) {
     if len(byte) != 4 {
         return 0, errors.New("转 int32 byte 长度必须是4")
     }
@@ -140,8 +140,8 @@ func ByteToInt32(byte []byte) (int32, error) {
     return value, nil
 }
 
-// Int32ToBytes int32 转 二进制
-func Int32ToBytes(n int32) ([]byte, error) {
+// FromInt32 int32 转 二进制
+func FromInt32(n int32) ([]byte, error) {
     buffer := bytes.NewBuffer([]byte{})
     err := binary.Write(buffer, binary.BigEndian, n)
     if err != nil {
@@ -150,8 +150,8 @@ func Int32ToBytes(n int32) ([]byte, error) {
     return buffer.Bytes(), nil
 }
 
-// ByteToInt16 16位byte 转成int16
-func ByteToInt16(byte []byte) (int16, error) {
+// ToInt16 16位byte 转成int16
+func ToInt16(byte []byte) (int16, error) {
     if len(byte) != 2 {
         return 0, errors.New("转 uint16 byte 长度必须是2")
     }
@@ -164,8 +164,8 @@ func ByteToInt16(byte []byte) (int16, error) {
     return value, nil
 }
 
-// Int16ToBytes int16 转 二进制
-func Int16ToBytes(n int16) ([]byte, error) {
+// FromInt16 int16 转 二进制
+func FromInt16(n int16) ([]byte, error) {
     buffer := bytes.NewBuffer([]byte{})
     err := binary.Write(buffer, binary.BigEndian, n)
     if err != nil {
@@ -174,8 +174,8 @@ func Int16ToBytes(n int16) ([]byte, error) {
     return buffer.Bytes(), nil
 }
 
-// ByteToInt8 16位byte 转成int16
-func ByteToInt8(byte []byte) (int8, error) {
+// ToInt8 16位byte 转成int16
+func ToInt8(byte []byte) (int8, error) {
     if len(byte) != 1 {
         return 0, errors.New("转 int8 byte 长度必须是1")
     }
@@ -188,8 +188,8 @@ func ByteToInt8(byte []byte) (int8, error) {
     return value, nil
 }
 
-// Int8ToBytes int8 转 二进制
-func Int8ToBytes(n int8) ([]byte, error) {
+// FromInt8 int8 转 二进制
+func FromInt8(n int8) ([]byte, error) {
     buffer := bytes.NewBuffer([]byte{})
     err := binary.Write(buffer, binary.BigEndian, n)
     if err != nil {
