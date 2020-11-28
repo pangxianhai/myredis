@@ -1,13 +1,35 @@
 package message
 
-import "testing"
+import (
+    "encoding/binary"
+    "testing"
+)
 
 func TestNew(t *testing.T) {
-    msg := New(123, "asdfsfdfs")
-    b, _ := ToByte(msg)
+    bs := []byte{0x1f, 0xff}
 
-    msg1, _ := FromByte(b)
+    t.Log(binary.BigEndian.Uint16(bs))
+    t.Log(int16(binary.BigEndian.Uint16(bs)))
 
-    t.Log(msg)
-    t.Log(msg1)
+    n := toInt16(bs)
+    t.Log(n)
+
+    ab := fromInt16(n)
+    t.Log(ab)
+
+}
+
+func toInt16(bs []byte) (n int16) {
+    for _, b := range bs {
+        n = n<<8 | int16(b)
+    }
+    return
+}
+
+func fromInt16(n int16) []byte {
+    b := make([]byte, 2)
+
+    b[1] = byte(n)
+    b[0] = byte(n >> 8)
+    return b
 }

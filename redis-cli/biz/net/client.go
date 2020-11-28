@@ -38,6 +38,7 @@ func Init() error {
     client = new(Client)
     client.reader = bufio.NewReader(conn)
     client.writer = bufio.NewWriter(conn)
+    client.pending = make(map[uint64]*Call, 0)
     go client.input()
     return nil
 }
@@ -65,19 +66,7 @@ func Send(data string) (result string, err error) {
 }
 
 func (client *Client) write(msg *message.Message) (err error) {
-    msgBuf, err := message.ToByte(msg)
-    if err != nil {
-        return
-    }
-    msgLen := uint64(len(msgBuf))
-    lenBuf, err := bytes.FromUint64(msgLen)
-    if err != nil {
-        return
-    }
-
-    buf := make([]byte, 0)
-    buf = append(buf, lenBuf...)
-    buf = append(buf, msgBuf...)
+    buf := message.ToPacket(msg)
 
     client.mutex.Lock()
     defer client.mutex.Unlock()
@@ -94,16 +83,27 @@ func (client *Client) input() {
         lenBuf := make([]byte, 8)
         _, err := io.ReadFull(client.reader, lenBuf)
         if err != nil {
+            if err == io.EOF {
+                log.Fatalln("断开服务器连接")
+            }
+            log.Println("读取服务器数据失败", err)
             continue
         }
-        msgLen, err := bytes.ToUint64(lenBuf)
-        if err != nil {
-            continue
-        }
+        msgLen := bytes.ToUint64(lenBuf)
         msgBuf := make([]byte, msgLen)
         _, err = io.ReadFull(client.reader, msgBuf)
+        if err != nil {
+            if err == io.EOF {
+                log.Fatalln("断开服务器连接")
+            }
+            log.Println("读取服务器数据失败", err)
+            continue
+        }
         msg, err := message.FromByte(msgBuf)
-
+        if err != nil {
+            log.Println("接收服务器数据格式错误", err)
+            continue
+        }
         client.mutex.Lock()
         call := client.pending[msg.ID]
         delete(client.pending, msg.ID)

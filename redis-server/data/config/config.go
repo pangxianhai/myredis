@@ -5,37 +5,28 @@ import (
     "io"
     "log"
     "os"
-    "strconv"
     "strings"
     "sync"
 )
 
-var config *Config
-var configLock sync.Mutex
-
-func InitConfig(configPath string) {
-    if config != nil {
-        return
-    }
-    configLock.Lock()
-    defer configLock.Unlock()
-    if config != nil {
-        return
-    }
-    config = &Config{}
-    config.init(configPath)
-}
-
-func GetConfigInstance() *Config {
-    if config != nil {
-        return config
-    }
-    InitConfig("")
-    return config
-}
-
 type Config struct {
     configInfo map[string]string
+    mutex      sync.Mutex
+}
+
+var config *Config
+
+func Load(configPath string) {
+    if config != nil {
+        return
+    }
+    config = new(Config)
+    config.mutex.Lock()
+    defer config.mutex.Unlock()
+    if config != nil {
+        return
+    }
+    config.init(configPath)
 }
 
 func (config *Config) init(configPath string) {
@@ -44,10 +35,12 @@ func (config *Config) init(configPath string) {
     }
     file, err := os.Open(configPath)
     if file != nil {
-        defer file.Close()
+        defer func() {
+            _ = file.Close()
+        }()
     }
     if err != nil {
-        log.Fatalln("加载配置:", configPath, " 错误", err)
+        log.Fatalln("加载配置:", configPath, " 失败", err)
     }
     config.configInfo = make(map[string]string)
     reader := bufio.NewReader(file)
@@ -71,19 +64,14 @@ func (config *Config) init(configPath string) {
     }
 }
 
-func (config *Config) GetServerPort() int {
-    return config.getIntValue("server_port", 6379)
+func ServerPort() string {
+    return config.stringValue("server_port", "6379")
 }
 
-func (config *Config) getIntValue(key string, defaultValue int) int {
+func (config *Config) stringValue(key string, defaultValue string) string {
     value, ok := config.configInfo[key]
     if ok {
-        iv, err := strconv.Atoi(value)
-        if err == nil {
-            return iv
-        } else {
-            return defaultValue
-        }
+        return value
     } else {
         return defaultValue
     }

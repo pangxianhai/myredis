@@ -1,14 +1,16 @@
 package main
 
 import (
-    "fmt"
-    "reids-server/data/config"
+    "log"
+    "redis-server/biz/net"
+    "redis-server/data/config"
 )
 
 func main() {
-    config.InitConfig("./redis.conf")
-
-    conf := config.GetConfigInstance()
-    fmt.Println(conf.GetServerPort())
+    config.Load("./redis.conf")
+    err := net.Start()
+    if err != nil {
+        log.Fatalln("启动服务失败", err)
+    }
 
 }

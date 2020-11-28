@@ -1,6 +1,7 @@
 package main
 
 import (
+    "bufio"
     "fmt"
     "log"
     "os"
@@ -17,9 +18,9 @@ func main() {
     }
 
     for {
-        var msg string
         fmt.Print(config.ServerAddress() + " > ")
-        _, err := fmt.Scan(&msg)
+        reader := bufio.NewReader(os.Stdin)
+        msg, _ := reader.ReadString('\n')
         if err != nil {
             fmt.Println("your input error", err)
             continue

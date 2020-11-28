@@ -1,5 +1,11 @@
-module reids-server
+module redis-server
 
 go 1.15
 
-require golang.org/x/tools/gopls v0.5.2 // indirect
+require (
+	redis-common v0.0.0
+)
+
+replace (
+	redis-common v0.0.0 => ../redis-common
+)
