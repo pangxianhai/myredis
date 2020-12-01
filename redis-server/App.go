@@ -2,8 +2,8 @@ package main
 
 import (
     "log"
-    "redis-server/biz/net"
     "redis-server/data/config"
+    "redis-server/service/net"
 )
 
 func main() {

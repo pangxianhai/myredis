@@ -1,5 +1,5 @@
 .idea
 .DS_Store
 .vscode
-redis-cli
-redis-server
+redis-cli/redis-cli 
+redis-server/redis-server 

@@ -19,31 +19,31 @@ type Call struct {
 }
 
 type Client struct {
-    reader  *bufio.Reader
-    writer  *bufio.Writer
-    mutex   sync.Mutex
-    seq     uint64
-    pending map[uint64]*Call
-    closing bool
+    reader        *bufio.Reader
+    writer        *bufio.Writer
+    mutex         sync.Mutex
+    seq           uint64
+    pending       map[uint64]*Call
+    closing       bool
+    ServerAddress string
 }
 
-var client *Client
-
-func Init() error {
+func New() (*Client, error) {
     var err error
     conn, err := net.Dial("tcp", config.ServerAddress())
     if err != nil {
-        return err
+        return nil, err
     }
-    client = new(Client)
+    client := new(Client)
     client.reader = bufio.NewReader(conn)
     client.writer = bufio.NewWriter(conn)
     client.pending = make(map[uint64]*Call, 0)
+    client.ServerAddress = config.ServerAddress()
     go client.input()
-    return nil
+    return client, nil
 }
 
-func Send(data string) (result string, err error) {
+func (client *Client) Send(data string) (result string, err error) {
     call := new(Call)
     call.Done = make(chan *Call, 1)
 
