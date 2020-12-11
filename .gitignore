@@ -1,5 +1,6 @@
 .idea
 .DS_Store
 .vscode
+redis.log.*
 redis-cli/redis-cli 
 redis-server/redis-server 

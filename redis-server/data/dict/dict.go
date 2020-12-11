@@ -180,6 +180,15 @@ func (ht *Ht) put(key interface{}, value interface{}) {
     if v == nil {
         ht.table[index] = entry
     } else {
+        p := ht.table[index]
+        //找到相同key 只替换value
+        for p != nil {
+            if p.key == key {
+                p.value = value
+                return
+            }
+        }
+        //无相同key  加到头部
         entry.next = v
         ht.table[index] = entry
     }
@@ -228,4 +237,12 @@ func (ite *Iterator) Next() interface{} {
         ite.hti, ite.index, ite.next = ite.dict.findNext(ite.hti, ite.index)
     }
     return ite.current
+}
+
+func (e *Entry) Key() interface{} {
+    return e.key
+}
+
+func (e *Entry) Value() interface{} {
+    return e.value
 }

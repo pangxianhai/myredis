@@ -2,30 +2,33 @@ package config
 
 import (
     "bufio"
+    "fmt"
     "io"
-    "log"
     "os"
     "strings"
     "sync"
 )
 
+const DevMode = true
+const Version = "1.0.0"
+
 type Config struct {
     configInfo map[string]string
-    mutex      sync.Mutex
 }
 
 var config *Config
+var mutex sync.Mutex
 
 func Load(configPath string) {
     if config != nil {
         return
     }
-    config = new(Config)
-    config.mutex.Lock()
-    defer config.mutex.Unlock()
+    mutex.Lock()
+    defer mutex.Unlock()
     if config != nil {
         return
     }
+    config = new(Config)
     config.init(configPath)
 }
 
@@ -40,7 +43,7 @@ func (config *Config) init(configPath string) {
         }()
     }
     if err != nil {
-        log.Fatalln("加载配置:", configPath, " 失败", err)
+        fmt.Println("load config ", configPath, " failed ", err)
     }
     config.configInfo = make(map[string]string)
     reader := bufio.NewReader(file)
@@ -50,7 +53,7 @@ func (config *Config) init(configPath string) {
             if err == io.EOF {
                 break
             }
-            log.Println("读取配置文件错误", err)
+            fmt.Println("read config file error", err)
         }
         lineStr := strings.TrimSpace(string(line))
         if strings.HasPrefix(lineStr, "#") {
@@ -58,7 +61,7 @@ func (config *Config) init(configPath string) {
         }
         lineArr := strings.Split(lineStr, "=")
         if len(lineArr) != 2 {
-            log.Println("读取配置项格式错误", lineStr)
+            fmt.Println("config file format error", lineStr)
         }
         config.configInfo[strings.TrimSpace(lineArr[0])] = strings.TrimSpace(lineArr[1])
     }
@@ -66,6 +69,10 @@ func (config *Config) init(configPath string) {
 
 func ServerPort() string {
     return config.stringValue("server_port", "6379")
+}
+
+func StringValue(key string, defaultValue string) string {
+    return config.stringValue(key, defaultValue)
 }
 
 func (config *Config) stringValue(key string, defaultValue string) string {

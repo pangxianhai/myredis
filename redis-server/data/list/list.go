@@ -1,5 +1,7 @@
 package list
 
+import "redis-server/common/iterator"
+
 type Node struct {
     value interface{}
     next  *Node
@@ -12,6 +14,12 @@ type List struct {
     len  int
 }
 
+type Iterator struct {
+    list *List
+    cur  *Node
+    next *Node
+}
+
 func New() *List {
     list := new(List)
     return list
@@ -21,7 +29,7 @@ func (list *List) Len() int {
     return list.len
 }
 
-func (list *List) AddR(value interface{}) {
+func (list *List) Rpush(value interface{}) {
     node := new(Node)
     node.value = value
     prev := list.tail
@@ -36,7 +44,7 @@ func (list *List) AddR(value interface{}) {
     list.len++
 }
 
-func (list *List) AddL(value interface{}) {
+func (list *List) Lpush(value interface{}) {
     node := new(Node)
     node.value = value
     next := list.head
@@ -72,7 +80,7 @@ func (list *List) Remove(value interface{}) {
     }
 }
 
-func (list *List) PopL() (value interface{}) {
+func (list *List) Lpop() (value interface{}) {
     if list.head == nil {
         return nil
     }
@@ -85,7 +93,7 @@ func (list *List) PopL() (value interface{}) {
     return
 }
 
-func (list *List) PopR() (value interface{}) {
+func (list *List) Rpop() (value interface{}) {
     if list.tail == nil {
         return nil
     }
@@ -98,7 +106,7 @@ func (list *List) PopR() (value interface{}) {
     return
 }
 
-func (list *List) GetIndex(index int) interface{} {
+func (list *List) Get(index int) interface{} {
     if index < 0 || list.len <= index {
         return nil
     }
@@ -111,4 +119,21 @@ func (list *List) GetIndex(index int) interface{} {
         }
     }
     return nil
+}
+
+func (list *List) Iterator() iterator.Iterator {
+    ite := new(Iterator)
+    ite.list = list
+    ite.next = list.head
+    return ite
+}
+
+func (ite *Iterator) HasNext() bool {
+    return ite.next != nil
+}
+
+func (ite *Iterator) Next() interface{} {
+    ite.cur = ite.next
+    ite.next = ite.cur.next
+    return ite.cur.value
 }

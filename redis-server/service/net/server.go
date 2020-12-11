@@ -3,13 +3,13 @@ package net
 import (
     "bufio"
     "io"
-    "log"
     "net"
     "redis-common/bytes"
     "redis-common/message"
     "redis-common/result"
     "redis-server/biz/cmd"
     "redis-server/data/config"
+    "redis-server/service/logger"
     "sync"
 )
 
@@ -43,7 +43,7 @@ func Start() error {
     }
     server = new(Server)
     server.clients = make(map[uint64]*Client, 0)
-    log.Println("服务启动完成")
+    logger.Info("start success")
     //循环接受每个客户端的连接
     for {
         conn, err := netListen.Accept()
@@ -68,16 +68,16 @@ func Start() error {
 }
 
 func (server *Server) accept(client *Client) {
-    log.Println(client.address, "连接服务器")
+    logger.Info(client.address, " connect server")
     for {
         msg, err := server.read(client)
 
         if err == io.EOF {
-            log.Println(client.address, "与服务器断开连接")
+            logger.Info(client.address, " close")
             server.close(client)
             break
         } else if err != nil {
-            log.Println(client.address, "读取客户端数据错误", err)
+            logger.Error(client.address, "read client data error", err)
             continue
         }
 
@@ -85,16 +85,16 @@ func (server *Server) accept(client *Client) {
 
         msg.Content, err = result.ToJson(res)
         if err != nil {
-            log.Println("命令执行结果转成 json 字符串失败", err)
+            logger.Error("result to json failed", err)
             msg.Content = ""
         }
         err = server.write(client, msg)
         if err == io.EOF {
-            log.Println(client.address, "与服务器断开连接")
+            logger.Error(client.address, " close")
             server.close(client)
             break
         } else if err != nil {
-            log.Println(client.address, "向客户端写数据错误", err)
+            logger.Error(client.address, "write to client error", err)
         }
     }
 }
