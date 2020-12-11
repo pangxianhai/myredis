@@ -8,8 +8,8 @@ import (
     "redis-common/message"
     "redis-common/result"
     "redis-server/biz/cmd"
+    "redis-server/common/logger"
     "redis-server/data/config"
-    "redis-server/service/logger"
     "sync"
 )
 
