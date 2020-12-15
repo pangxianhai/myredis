@@ -1,8 +1,8 @@
 package main
 
 import (
+    "redis-server/common/config"
     "redis-server/common/logger"
-    "redis-server/data/config"
     "redis-server/service/net"
 )
 

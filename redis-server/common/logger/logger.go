@@ -4,7 +4,7 @@ import (
     "fmt"
     "log"
     "os"
-    "redis-server/data/config"
+    "redis-server/common/config"
     "runtime"
     "strconv"
     "strings"
