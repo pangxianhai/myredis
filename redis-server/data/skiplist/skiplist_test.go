@@ -112,6 +112,67 @@ func TestSkipListRemove(t *testing.T) {
 }
 
 func TestSkipListRange(t *testing.T) {
+    for i := 0; i < 50; i++ {
+        l := New()
+        l.Add(&A{data: "a"}, 1)
+        l.Add(&A{data: "f"}, 6)
+        l.Add(&A{data: "c"}, 3)
+        l.Add(&A{data: "b"}, 2)
+        l.Add(&A{data: "h"}, 8)
+        l.Add(&A{data: "d"}, 4)
+        l.Add(&A{data: "g"}, 7)
+        l.Add(&A{data: "e"}, 5)
+        l.Add(&A{data: "i"}, 9)
+
+        ll := l.Range(4, 6)
+
+        for ite := ll.Iterator(); ite.HasNext(); {
+            t.Log(ite.Next())
+        }
+    }
+}
+
+func TestSkipListRevRange(t *testing.T) {
+    for i := 0; i < 50; i++ {
+        l := createTestSkipList()
+
+        ll := l.RevRange(4, 6)
+
+        for ite := ll.Iterator(); ite.HasNext(); {
+            t.Log(ite.Next())
+        }
+    }
+}
+
+func TestSkipListRangeByScore(t *testing.T) {
+    for i := 0; i < 1; i++ {
+        l := createTestSkipList()
+        ll := l.RangeByScore(0, 9, 0, 9)
+        if ll != nil {
+            for ite := ll.Iterator(); ite.HasNext(); {
+                t.Log(ite.Next())
+            }
+        } else {
+            t.Log("Empty!")
+        }
+    }
+}
+
+func TestSkipListRevRangeByScore(t *testing.T) {
+    for i := 0; i < 50; i++ {
+        skipList := createTestSkipList()
+        ll := skipList.RevRangeByScore(2, 5, 0, 4)
+        if ll != nil {
+            for ite := ll.Iterator(); ite.HasNext(); {
+                t.Log(ite.Next())
+            }
+        } else {
+            t.Log("Empty!")
+        }
+    }
+}
+
+func createTestSkipList() *SkipList {
     l := New()
     l.Add(&A{data: "a"}, 1)
     l.Add(&A{data: "f"}, 6)
@@ -122,21 +183,7 @@ func TestSkipListRange(t *testing.T) {
     l.Add(&A{data: "g"}, 7)
     l.Add(&A{data: "e"}, 5)
     l.Add(&A{data: "i"}, 9)
-
-    ll := l.Range(3, 5)
-
-    t.Log("ll len", ll.Len())
-    if ll.Len() == 0 {
-        t.Log(l.head)
-        for ite := l.Iterator(); ite.HasNext(); {
-            t.Log(ite.Next())
-        }
-        //ll = l.Range(3, 5)
-    }
-
-    for ite := ll.Iterator(); ite.HasNext(); {
-        t.Log(ite.Next())
-    }
+    return l
 }
 
 type A struct {

@@ -140,43 +140,87 @@ func (skipList *SkipList) Remove(v comparable.Comparable, score float64) {
 }
 
 func (skipList *SkipList) Range(start, end int) *list.List {
-    if end < 0 {
-        //end 小于0 表示到倒数x位
-        end = skipList.len + end + 1
-    }
-    if start < 0 || start >= skipList.len || end < 0 || start > end {
+    start, end, ok := skipList.rewordStartAndEnd(start, end)
+
+    if !ok {
         //偏移量不合法 返回 nil
         return nil
     }
-    //由于head 到第一个位置跨度为1 start 要加1
-    start += 1
-    n := skipList.head
-    s := 0
-    var first *Node
-    for l := skipList.level - 1; l >= 0; l-- {
-        if start == s+n.level[l].span {
-            first = n.level[l].forward
-            break
-        } else {
-            for start >= n.level[l].span+s && n.level[l].forward != nil {
-                if start == n.level[l].span+s {
-                    first = n.level[l].forward
-                    break
-                } else {
-                    s = n.level[l].span + s
-                    n = n.level[l].forward
-                }
-            }
-        }
-    }
+    node := skipList.getIndex(skipList.head, start+1)
+
     resList := list.New()
-    //因为前面start+1了，end-start时多减了一个 所以这里要加回去
-    for i := 0; i < end-start+1; i++ {
-        if first == nil {
+    for i := 0; i <= end-start; i++ {
+        if node == nil {
             break
         }
-        resList.Rpush(first)
-        first = first.level[0].forward
+        resList.Rpush(node)
+        node = node.level[0].forward
+    }
+    return resList
+}
+
+func (skipList *SkipList) RevRange(start, end int) *list.List {
+    start, end, ok := skipList.rewordStartAndEnd(start, end)
+
+    if !ok {
+        //偏移量不合法 返回 nil
+        return nil
+    }
+    node := skipList.getIndex(skipList.head, end+1)
+    resList := list.New()
+    for i := 0; i <= end-start; i++ {
+        if node == nil {
+            break
+        }
+        resList.Rpush(node)
+        node = node.bw
+    }
+    return resList
+}
+
+func (skipList *SkipList) RangeByScore(min, max float64, offset, count int) *list.List {
+    if offset < 0 || offset > skipList.len || count <= 0 {
+        return nil
+    }
+    if min > max || min > skipList.tail.score {
+        return nil
+    }
+    node, _ := skipList.getScore(min)
+    if node == nil {
+        return nil
+    }
+    node = skipList.getIndex(node, offset)
+    resList := list.New()
+    for i := 0; i < count; i++ {
+        if node == nil || node.score > max {
+            break
+        }
+        resList.Rpush(node)
+        node = node.level[0].forward
+    }
+    return resList
+}
+
+func (skipList *SkipList) RevRangeByScore(min, max float64, offset, count int) *list.List {
+    if offset < 0 || offset > skipList.len || count <= 0 {
+        return nil
+    }
+    if min > max || min > skipList.tail.score {
+        return nil
+    }
+    node, span := skipList.getScore(max)
+    if node == nil {
+        return nil
+    }
+    node = skipList.getIndex(skipList.head, span)
+
+    resList := list.New()
+    for i := 0; i < count; i++ {
+        if node == nil || node.score < min {
+            break
+        }
+        resList.Rpush(node)
+        node = node.bw
     }
     return resList
 }
@@ -231,6 +275,42 @@ func (skipList *SkipList) search(t *Node) (update []*Node, rank []int) {
     return
 }
 
+func (skipList *SkipList) getIndex(startNode *Node, index int) *Node {
+    if index < 0 || index >= skipList.len {
+        return nil
+    }
+    //由于head 到第一个的跨度为1 所以 index 要加1
+    span := 0
+    for span < index && startNode != skipList.tail {
+        for l := len(startNode.level) - 1; l >= 0; l-- {
+            for index >= startNode.level[l].span+span && startNode.level[l].forward != nil {
+                span = startNode.level[l].span + span
+                startNode = startNode.level[l].forward
+            }
+        }
+    }
+    return startNode
+}
+
+// getScore 查询 <= score 的分数最大的节点 或 大于>= score 分数最小的节点 其实这两条件的含义是一样的
+func (skipList *SkipList) getScore(score float64) (node *Node, span int) {
+    node = skipList.head
+    for l := skipList.level - 1; l >= 0; l-- {
+        for node.level[l].forward != nil && node.level[l].forward.score <= score {
+            span += node.level[l].span
+            node = node.level[l].forward
+        }
+        if node.score >= score {
+            break
+        }
+    }
+    //node 可能是最后一个节点 node 不能继续向后移动
+    if node.score < score {
+        node = nil
+    }
+    return
+}
+
 func (skipList *SkipList) createNode(v comparable.Comparable, score float64, level int) *Node {
     n := new(Node)
     n.score = score
@@ -263,4 +343,21 @@ func (skipList *SkipList) String() string {
     }
     str += "]"
     return str
+}
+
+func (skipList *SkipList) rewordStartAndEnd(start, end int) (int, int, bool) {
+    if end < 0 {
+        //end 小于0 表示到倒数end位
+        end = skipList.len + end + 1
+    }
+    if start < 0 {
+        //start 小于0 表示到倒数start位
+        start = skipList.len + start
+    }
+    if start < 0 || start >= skipList.len || end < 0 || start > end {
+        //偏移量不合法 返回 nil
+        return start, end, false
+    } else {
+        return start, end, true
+    }
 }
