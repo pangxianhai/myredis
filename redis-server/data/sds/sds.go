@@ -34,6 +34,20 @@ func (sds *Sds) String() string {
     return string(sds.buf[0:sds.len])
 }
 
+func (sds *Sds) CompareTo(o interface{}) int {
+    o1, ok := o.(*Sds)
+    if !ok {
+        return -1
+    }
+    if sds.String() < o1.String() {
+        return -1
+    } else if sds.String() == o1.String() {
+        return 0
+    } else {
+        return 1
+    }
+}
+
 func (sds *Sds) Cat(str string) {
     sds.extend(len(str))
     copy(sds.buf[sds.len:], str)
@@ -68,4 +82,8 @@ func (sds *Sds) freed() {
         sds.buf = sds.buf[0 : 2*sds.len]
         sds.free = len(sds.buf) - sds.len
     }
+}
+
+func IsEmpty(sds *Sds) bool {
+    return sds == nil || sds.Len() == 0
 }

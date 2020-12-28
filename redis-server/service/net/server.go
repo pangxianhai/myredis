@@ -5,8 +5,9 @@ import (
     "io"
     "net"
     "redis-common/bytes"
-    "redis-common/message"
-    "redis-common/result"
+    "redis-common/proto/message"
+    "redis-common/proto/request"
+    "redis-common/proto/response"
     "redis-server/biz/cmd"
     "redis-server/common/config"
     "redis-server/common/logger"
@@ -81,13 +82,10 @@ func (server *Server) accept(client *Client) {
             continue
         }
 
-        res := cmd.Call(msg.Content)
+        req := request.FromByte(msg.Content)
+        res := cmd.Call(req)
+        msg.Content = response.ToByte(res)
 
-        msg.Content, err = result.ToJson(res)
-        if err != nil {
-            logger.Error("result to json failed", err)
-            msg.Content = ""
-        }
         err = server.write(client, msg)
         if err == io.EOF {
             logger.Error(client.address, " close")
@@ -111,15 +109,12 @@ func (server *Server) read(client *Client) (*message.Message, error) {
     if err != nil {
         return nil, err
     }
-    msg, err := message.FromByte(buf)
-    if err != nil {
-        return nil, err
-    }
+    msg := message.FromByte(buf)
     return msg, nil
 }
 
 func (server *Server) write(client *Client, msg *message.Message) error {
-    tBuf := message.ToPacket(msg)
+    tBuf := message.ToByte(msg)
     _, err := client.writer.Write(tBuf)
     if err != nil {
         return err

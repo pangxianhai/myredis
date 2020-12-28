@@ -1,5 +1,7 @@
 package bytes
 
+import "github.com/gogo/protobuf/proto"
+
 // ToUint64 64位byte 转成uint64
 func ToUint64(byte []byte) uint64 {
     var n uint64
@@ -140,4 +142,25 @@ func FromInt8(n int8) []byte {
     b := make([]byte, 1)
     b[0] = byte(n)
     return b
+}
+
+func FromPb(pb proto.Message) []byte {
+    if pb == nil {
+        return nil
+    }
+    b, err := proto.Marshal(pb)
+    if err != nil {
+        panic(err)
+    }
+    return b
+}
+
+func ToPb(b []byte, pb proto.Message) {
+    if b == nil {
+        return
+    }
+    err := proto.Unmarshal(b, pb)
+    if err != nil {
+        panic(err)
+    }
 }

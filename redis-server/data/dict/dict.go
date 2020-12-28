@@ -79,6 +79,16 @@ func (dict *Dict) Get(key interface{}) interface{} {
     return nil
 }
 
+func (dict *Dict) Remove(key interface{}) {
+    //先进行 rehash ,是否需要 rehash 在 rehash里判断
+    dict.rehash()
+    if dict.ht[0] != nil {
+        dict.ht[0].remove(key)
+    } else if dict.ht[1] != nil {
+        dict.ht[1].remove(key)
+    }
+}
+
 func (dict *Dict) Iterator() iterator.Iterator {
     ite := new(Iterator)
     ite.dict = dict
@@ -210,6 +220,31 @@ func (ht *Ht) get(key interface{}) interface{} {
         p = p.next
     }
     return nil
+}
+
+func (ht *Ht) remove(key interface{}) {
+    index := ht.hash(key)
+
+    entry := ht.table[index]
+    if entry == nil {
+        return
+    }
+    if entry.key == key {
+        ht.table[index] = entry.next
+        entry.next = nil
+    } else {
+        p := entry.next
+        pre := entry
+        for p != nil {
+            if p.key == key {
+                pre.next = p.next
+                p.next = nil
+                break
+            }
+            p = p.next
+            pre = pre.next
+        }
+    }
 }
 
 func (ht *Ht) hash(key interface{}) uint32 {

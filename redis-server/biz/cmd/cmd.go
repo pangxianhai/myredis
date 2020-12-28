@@ -1,12 +1,13 @@
 package cmd
 
 import (
-    "redis-common/result"
+    "redis-common/proto/request"
+    "redis-common/proto/response"
     "strings"
 )
 
 type Interpreter interface {
-    Interpreter(args []string) *result.Result
+    Interpreter(data []byte) *response.Response
     Key() string
 }
 type Factory struct {
@@ -26,12 +27,11 @@ func Register(interpreter Interpreter) {
     factory.interpreters[key] = interpreter
 }
 
-func Call(args string) *result.Result {
-    argv := strings.Split(args, " ")
-    key := strings.ToLower(strings.TrimSpace(argv[0]))
-    interpreter, ok := factory.interpreters[key]
+func Call(body *request.Request) *response.Response {
+    cmd := strings.ToLower(body.Cmd)
+    interpreter, ok := factory.interpreters[cmd]
     if !ok {
-        return result.NewOfCode(result.NOT_FOUND, "不支持该命令")
+        return response.NewOfCode(response.NotFound, "不支持该命令")
     }
-    return interpreter.Interpreter(argv[1:])
+    return interpreter.Interpreter(body.Data)
 }
