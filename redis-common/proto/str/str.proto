@@ -1,0 +1,27 @@
+// protoc --gofast_out=. params.proto
+
+syntax = "proto3";
+package str;
+
+//set 命令参数
+message SetReq {
+    string key = 1;
+    string value = 2;
+    string expx = 3;
+    string nxxx = 4;
+    int32 timeout = 5;
+}
+
+//set 命令结果
+message SetRes {
+    string resp = 1;
+}
+
+//get 命令参数
+message GetReq {
+    string key = 1;
+}
+
+message GetRes{
+    string value = 1;
+}
