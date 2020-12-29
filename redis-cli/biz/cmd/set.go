@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"redis-common/proto/response"
@@ -12,7 +11,9 @@ import (
 
 func init() {
 	set := new(Set)
-	Register("set", set)
+	Register(set)
+	setex := new(SetEx)
+	Register(setex)
 }
 
 type Set struct {
@@ -21,7 +22,7 @@ type Set struct {
 //set 命令 set key value [EX|PX KEEPTTL] [NX|XX]
 func (set *Set) HandleInput(args []string) ([]byte, error) {
 	if len(args) < 2 {
-		return nil, errors.New("ERR wrong number of arguments for 'set' command")
+		return nil, ArgsNumErr(set.Name())
 	}
 	req := new(str.SetReq)
 	req.Key = args[0]
@@ -34,11 +35,11 @@ func (set *Set) HandleInput(args []string) ([]byte, error) {
 		if v == "ex" || v == "px" {
 			req.Expx = v
 			if i == len(args)-1 {
-				return nil, errors.New("ERR syntax error")
+				return nil, SyntaxErr
 			}
 			timeout, err := strconv.Atoi(args[i+1])
 			if err != nil {
-				return nil, errors.New("ERR syntax error")
+				return nil, SyntaxErr
 			}
 			req.Timeout = int32(timeout)
 		} else if v == "nx" || v == "xx" {
@@ -56,4 +57,41 @@ func (set *Set) HandleResult(res *response.Response, writer io.Writer) {
 	} else {
 		_, _ = fmt.Fprintln(writer, res.Msg)
 	}
+}
+
+func (set *Set) Name() string {
+	return "set"
+}
+
+type SetEx struct {
+}
+
+func (setEx *SetEx) HandleInput(args []string) ([]byte, error) {
+	if len(args) != 3 {
+		return nil, ArgsNumErr(setEx.Name())
+	}
+	timeout, err := strconv.Atoi(args[1])
+	if err != nil {
+		return nil, SyntaxErr
+	}
+	req := new(str.SetReq)
+	req.Key = args[0]
+	req.Timeout = int32(timeout)
+	req.Value = args[2]
+	return str.SetReqToByte(req), nil
+}
+
+func (setEx *SetEx) HandleResult(res *response.Response, writer io.Writer) {
+	if res == nil {
+		return
+	}
+	if res.Code == response.Success {
+		_, _ = fmt.Fprintln(writer, "OK")
+	} else {
+		_, _ = fmt.Fprintln(writer, res.Msg)
+	}
+}
+
+func (setEx *SetEx) Name() string {
+	return "setex"
 }

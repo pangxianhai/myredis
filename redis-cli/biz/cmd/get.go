@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"redis-common/proto/response"
@@ -10,7 +9,7 @@ import (
 
 func init() {
 	get := new(Get)
-	Register("get", get)
+	Register(get)
 }
 
 type Get struct {
@@ -18,7 +17,7 @@ type Get struct {
 
 func (get *Get) HandleInput(args []string) ([]byte, error) {
 	if len(args) != 1 {
-		return nil, errors.New("ERR wrong number of arguments for 'get' command")
+		return nil, ArgsNumErr(get.Name())
 	}
 	req := new(str.GetReq)
 	req.Key = args[0]
@@ -35,4 +34,8 @@ func (get *Get) HandleResult(res *response.Response, writer io.Writer) {
 	} else {
 		_, _ = fmt.Fprintln(writer, "nil")
 	}
+}
+
+func (get *Get) Name() string {
+	return "get"
 }
