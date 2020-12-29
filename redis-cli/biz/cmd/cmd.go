@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"io"
 	"redis-common/proto/response"
 )
@@ -29,7 +30,7 @@ func Register(key string, cmd Cmd) {
 func HandleInput(key string, args []string) ([]byte, error) {
 	cmd := factory.cmdMap[key]
 	if cmd == nil {
-		return nil, nil
+		return nil, errors.New(" ERR unknown command '" + key + "'")
 	}
 	return cmd.HandleInput(args)
 }
