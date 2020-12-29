@@ -21,8 +21,15 @@ func (get GetInterpreter) Key() string {
 
 func (get GetInterpreter) Interpreter(data []byte) *response.Response {
     getReq := str.GetReqFromByte(data)
-    value := db.Get(sds.NewWithStr(getReq.Key))
-    v := value.(sds.Sds)
-    getRes := str.NewGetRes(v.String())
-    return response.New(str.GetResToByte(getRes))
+    obj := db.Get(sds.NewWithStr(getReq.Key))
+    if obj == nil {
+        getRes := str.NewGetRes("")
+        return response.New(str.GetResToByte(getRes))
+    }
+    if !obj.IsSds() {
+        return response.NewOfCode(response.Error, "WRONGTYPE Operation against a key holding the wrong kind of value")
+    } else {
+        getRes := str.NewGetRes(obj.SdsVal().String())
+        return response.New(str.GetResToByte(getRes))
+    }
 }

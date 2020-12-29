@@ -7,6 +7,7 @@ import (
     "redis-server/common/iterator"
     "redis-server/common/murmur3"
     "redis-server/common/numbers"
+    "redis-server/data/comparable"
 )
 
 type Entry struct {
@@ -193,7 +194,7 @@ func (ht *Ht) put(key interface{}, value interface{}) {
         p := ht.table[index]
         //找到相同key 只替换value
         for p != nil {
-            if p.key == key {
+            if p.keyEq(key) {
                 p.value = value
                 return
             }
@@ -214,7 +215,7 @@ func (ht *Ht) get(key interface{}) interface{} {
     }
     p := entry
     for p != nil {
-        if p.key == key {
+        if p.keyEq(key) {
             return p.value
         }
         p = p.next
@@ -229,14 +230,14 @@ func (ht *Ht) remove(key interface{}) {
     if entry == nil {
         return
     }
-    if entry.key == key {
+    if entry.keyEq(key) {
         ht.table[index] = entry.next
         entry.next = nil
     } else {
         p := entry.next
         pre := entry
         for p != nil {
-            if p.key == key {
+            if p.keyEq(key) {
                 pre.next = p.next
                 p.next = nil
                 break
@@ -280,4 +281,14 @@ func (e *Entry) Key() interface{} {
 
 func (e *Entry) Value() interface{} {
     return e.value
+}
+
+func (e *Entry) keyEq(key interface{}) bool {
+    ek, k1 := e.key.(comparable.Comparable)
+    ok, k2 := key.(comparable.Comparable)
+    if k1 && k2 {
+        return ek.CompareTo(ok) == 0
+    } else {
+        return e.key == key
+    }
 }

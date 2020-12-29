@@ -1,26 +1,22 @@
 package request
 
-import "github.com/gogo/protobuf/proto"
+import (
+    "redis-common/bytes"
+)
 
 func ToByte(p *Request) []byte {
-    if p == nil {
-        return nil
-    }
-    b, err := proto.Marshal(p)
-    if err != nil {
-        panic(err)
-    }
-    return b
+    return bytes.FromPb(p)
 }
 
 func FromByte(b []byte) *Request {
-    if b == nil {
-        return nil
-    }
     request := new(Request)
-    err := proto.Unmarshal(b, request)
-    if err != nil {
-        panic(err)
-    }
+    bytes.ToPb(b, request)
+    return request
+}
+
+func New(cmd string, data []byte) *Request {
+    request := new(Request)
+    request.Cmd = cmd
+    request.Data = data
     return request
 }

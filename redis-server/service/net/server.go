@@ -114,7 +114,7 @@ func (server *Server) read(client *Client) (*message.Message, error) {
 }
 
 func (server *Server) write(client *Client, msg *message.Message) error {
-    tBuf := message.ToByte(msg)
+    tBuf := message.ToPacket(msg)
     _, err := client.writer.Write(tBuf)
     if err != nil {
         return err

@@ -54,6 +54,7 @@ func (config *Config) init(configPath string) {
                 break
             }
             fmt.Println("read config file error", err)
+            break
         }
         lineStr := strings.TrimSpace(string(line))
         if strings.HasPrefix(lineStr, "#") {
@@ -62,6 +63,7 @@ func (config *Config) init(configPath string) {
         lineArr := strings.Split(lineStr, "=")
         if len(lineArr) != 2 {
             fmt.Println("config file format error", lineStr)
+            continue
         }
         config.configInfo[strings.TrimSpace(lineArr[0])] = strings.TrimSpace(lineArr[1])
     }

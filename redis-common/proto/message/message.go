@@ -1,30 +1,27 @@
 package message
 
-import "github.com/gogo/protobuf/proto"
+import (
+    "redis-common/bytes"
+)
 
 func New(id uint64, content []byte) *Message {
     return &Message{Id: id, Content: content}
 }
 
 func ToByte(msg *Message) []byte {
-    if msg == nil {
-        return nil
-    }
-    b, err := proto.Marshal(msg)
-    if err != nil {
-        panic(err)
-    }
-    return b
+    return bytes.FromPb(msg)
+}
+
+// ToPacket 转换为网络通信包 8位长度+数据
+func ToPacket(msg *Message) (buf []byte) {
+    msgBuf := ToByte(msg)
+    buf = bytes.FromUint64(uint64(len(msgBuf)))
+    buf = append(buf, msgBuf...)
+    return
 }
 
 func FromByte(b []byte) *Message {
-    if b == nil {
-        return nil
-    }
     p := new(Message)
-    err := proto.Unmarshal(b, p)
-    if err != nil {
-        panic(err)
-    }
+    bytes.ToPb(b, p)
     return p
 }

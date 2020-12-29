@@ -4,6 +4,7 @@ import (
     "redis-common/proto/response"
     "redis-common/proto/str"
     "redis-server/biz/db"
+    "redis-server/data/object"
     "redis-server/data/sds"
     "strings"
     "time"
@@ -54,7 +55,7 @@ func setStr(key, value *sds.Sds, expx, nxxx string, timeout int64) *str.SetRes {
     } else if expx == "px" {
         timeout += time.Now().UnixNano() / 1e6
     }
-    db.Put(key, value)
+    db.Put(key, object.New(value))
     if len(expx) == 0 {
         db.SetExpire(key, timeout)
     }

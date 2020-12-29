@@ -3,7 +3,8 @@ package dict
 import (
     _ "database/sql"
     "fmt"
-    "log"
+    "redis-server/data/sds"
+    "reflect"
     "testing"
 )
 
@@ -29,14 +30,19 @@ func TestDict(t *testing.T) {
     }
 }
 
-func Test2(t *testing.T) {
-    ss("a", "b")
+func TestKey(t *testing.T) {
+    s1 := sds.NewWithStr("a")
+    s2 := sds.NewWithStr("a")
+    dict := New()
+    dict.Put(s1, "aaa")
+
+    t.Log(dict.Get(s2))
+
+    a(s1)
 }
 
-func ss(v ...interface{}) {
-    //a := make([]interface{}, 1)
-    //a[0] = "[INFO]"
-    //v1 := append(a, v...)
-    s := fmt.Sprintln(v...)
-    log.Println(s)
+func a(i interface{}) {
+    v := reflect.ValueOf(i)
+    v.Elem()
+    fmt.Println(v.Type())
 }

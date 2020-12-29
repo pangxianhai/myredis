@@ -25,16 +25,16 @@ type Object struct {
 func New(v interface{}) *Object {
     obj := new(Object)
     switch v.(type) {
-    case sds.Sds:
+    case *sds.Sds:
         obj.t = Sds
         obj.o = v
-    case list.List:
+    case *list.List:
         obj.t = List
         obj.o = v
-    case zset.Zset:
+    case *zset.Zset:
         obj.t = Zset
         obj.o = v
-    case dict.Dict:
+    case *dict.Dict:
         obj.t = Hash
         obj.o = v
     }
@@ -75,4 +75,20 @@ func (obj *Object) HasVal() *dict.Dict {
     } else {
         return nil
     }
+}
+
+func (obj *Object) IsSds() bool {
+    return obj.t == Sds
+}
+
+func (obj *Object) IsList() bool {
+    return obj.t == List
+}
+
+func (obj *Object) IsZset() bool {
+    return obj.t == Zset
+}
+
+func (obj *Object) IsHash() bool {
+    return obj.t == Hash
 }
